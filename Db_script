@@ -1,0 +1,48 @@
+-- Customers table
+CREATE TABLE customers (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    customer_id VARCHAR(50) UNIQUE NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+    date_of_birth DATE,
+    status ENUM('ACTIVE', 'INACTIVE', 'PENDING_KYC') DEFAULT 'PENDING_KYC',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- KYC (Know Your Customer) data table
+CREATE TABLE kyc_data (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    customer_id BIGINT NOT NULL,
+    document_type ENUM('PASSPORT', 'DRIVING_LICENSE', 'NATIONAL_ID', 'OTHER') NOT NULL,
+    document_number VARCHAR(100) NOT NULL,
+    document_issuing_country VARCHAR(100),
+    document_expiry_date DATE,
+    kyc_status ENUM('PENDING', 'VERIFIED', 'REJECTED', 'EXPIRED') DEFAULT 'PENDING',
+    verification_date TIMESTAMP NULL,
+    verified_by VARCHAR(100),
+    rejection_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_document (document_type, document_number)
+);
+
+-- Contact information table
+CREATE TABLE contact_info (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    customer_id BIGINT NOT NULL,
+    address_line1 VARCHAR(255),
+    address_line2 VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    postal_code VARCHAR(20),
+    country VARCHAR(100),
+    address_type ENUM('HOME', 'WORK', 'BILLING', 'SHIPPING') DEFAULT 'HOME',
+    is_primary BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+);
